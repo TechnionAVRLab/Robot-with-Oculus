@@ -104,7 +104,7 @@ public class Unduino : MonoBehaviour
     int pitch;
     int yaw;
     int roll;
-    private bool emergencyStop = false;
+    private bool freezePose = false;
     private bool paused = true;
 
     #region Manus-VR
@@ -287,17 +287,17 @@ public class Unduino : MonoBehaviour
         }
 
         #region Electric cutoff for future implementation
-        //Emergency Stop
-        //if (OVRInput.GetUp(OVRInput.Button.PrimaryThumbstick, OVRInput.Controller.RTouch) || OVRInput.GetUp(OVRInput.Button.PrimaryThumbstick, OVRInput.Controller.LTouch))
-        //{
-        //    emergencyStop = !emergencyStop;
-        //}
+        //Freeze Pose
+        if (OVRInput.GetUp(OVRInput.Button.PrimaryThumbstick, OVRInput.Controller.RTouch) || OVRInput.GetUp(OVRInput.Button.PrimaryThumbstick, OVRInput.Controller.LTouch))
+        {
+            freezePose = !freezePose;
+        }
         #endregion
 
-        //Debug.Log("Elbow: " + right_hand_angles[0]);
-        //Debug.Log("Twist: " + right_hand_angles[1]);
-        //Debug.Log("Turn: " + right_hand_angles[2]);
-        //Debug.Log("Raise: " + right_hand_angles[3]);
+        //Debug.Log("Elbow: " + left_arm_angles[0]);
+        //Debug.Log("Twist: " + left_arm_angles[1]);
+        //Debug.Log("Turn: " + left_arm_angles[2]);
+        //Debug.Log("Raise: " + left_arm_angles[3]);
 
         #region Manus-VR
         //Left Hand
@@ -317,7 +317,7 @@ public class Unduino : MonoBehaviour
         //rh_Pinky = NormalizeAngle(rightHandPinky.transform.localEulerAngles.y, r_pinky_calib_min, r_pinky_calib_max, true);
         #endregion
 
-        if ((counter++) % 4 == 0 && stream.IsOpen)
+        if ((counter++) % 4 == 0 && stream.IsOpen && !freezePose)
         {
             stream.WriteLine(
             "9022" + "," + left_arm_angles[3].ToString() + "," +
@@ -586,14 +586,14 @@ public class Unduino : MonoBehaviour
         else
         {
             t3 = -t3;
-            if (t1 > 10 && t1 < 95)
+            if (t1 > 10 && t1 < 85)
             {
                 raise = leftT1RaiseAdd + t1;
                 left_prev_raise = raise;
             }
-            else if (t1 >= 95)
+            else if (t1 >= 85)
             {
-                raise = 160;
+                raise = 150;
                 left_prev_raise = raise;
             }
             else raise = left_prev_raise;
